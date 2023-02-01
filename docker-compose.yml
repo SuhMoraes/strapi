@@ -1,0 +1,40 @@
+version: '3.1'
+
+services:
+  blog_strapi_api:
+    container_name: blog_strapi
+    hostname: blog_strapi
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: senha
+      POSTGRES_DB: blog-strapi
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - /data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    expose:
+      - "5432"
+  node:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+      command: npm start
+      image: node
+      container_name: nodejs
+      ports:
+        - "8080:8080"
+      volumes:
+        - "./node_modules:/var/www/node_modules"
+
+  # PostgreSQL pgAdmin panel accessible at http://localhost:16543/
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "placeholder@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "fakepassword123!"
+    ports:
+      - "16543:80"
+    depends_on:
+      - postgres
